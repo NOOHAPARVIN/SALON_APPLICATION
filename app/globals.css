@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+/* ============================================
+   FOUC Prevention – Critical Layout Stability
+   These rules prevent images and SVGs from
+   expanding to viewport size during page refresh
+   before Tailwind CSS classes are applied.
+   ============================================ */
+
+/* All images: constrain and prevent layout burst */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Inline SVGs: prevent viewport-sized rendering */
+svg {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Next.js Image with fill: its parent MUST be position:relative.
+   Ensure the image stays contained even before CSS modules load. */
+img[data-nimg="fill"] {
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Hide Tailwind-only-sized elements until styles load.
+   Any SVG/element whose sizing depends SOLELY on Tailwind
+   utilities (like w-4 h-4) should have HTML width/height
+   attributes as fallback. This rule prevents them from being giant. */
+svg:not([width]):not([class*="logo"]) {
+  max-width: 2rem;
+  max-height: 2rem;
+}
+
+:root {
+  /* Warm Beige/Cream Theme based on user image */
+  --color-bg-primary: #f3ebdf;    /* Warm beige background */
+  --color-bg-secondary: #f9f4ec;  /* Lighter beige for cards */
+  --color-text-main: #3a4a35;     /* Dark olive green for text */
+  --color-text-muted: #6b7f5e;    /* Lighter green for muted text */
+  --color-gold: #c29957;          /* Metallic gold for accents/tools */
+  --color-gold-light: #e0ca9c;    /* Soft gold for highlights */
+  --color-border: #e6dccb;        /* Beige border */
+  --color-dark-bg: #1f271a;       /* Dark green for dark sections */
+  
+  --font-heading: 'Playfair Display', serif;
+  --font-body: 'Montserrat', sans-serif;
+  --font-cursive: 'Great Vibes', cursive;
+}
+
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-main);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* Base Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+/* Animations */
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes kenBurns {
+  from { transform: scale(1); }
+  to { transform: scale(1.1); }
+}
+
+@keyframes floatTool {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(3deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes floatToolReverse {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(-3deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-100px) rotate(-15deg); }
+  to { opacity: 1; transform: translateX(0) rotate(0deg); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(100px) rotate(15deg); }
+  to { opacity: 1; transform: translateX(0) rotate(0deg); }
+}
+
+/* ============================================
+   FullCalendar Staff Duty Hours Highlights
+   ============================================ */
+.fc-duty-green {
+  background-color: rgba(187, 247, 208, 0.40) !important;
+  border: 1px dashed rgba(34, 197, 94, 0.5) !important;
+  border-radius: 4px;
+}
+
+.fc-duty-yellow {
+  background-color: rgba(254, 240, 138, 0.45) !important;
+  border: 1px dashed rgba(234, 179, 8, 0.5) !important;
+  border-radius: 4px;
+}

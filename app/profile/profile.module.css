@@ -1,0 +1,76 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+
+  background: linear-gradient(135deg, #0f2a24, #1c3a32, #bfa76a);
+  font-family: Arial, sans-serif;
+}
+.page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+
+  background-image:
+    linear-gradient(
+      rgba(255,255,255,0.15),
+      rgba(255,255,255,0.15)
+    ),
+    url("/images/bgc.png");
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
+.card {
+  width: 100%;
+  max-width: 400px;
+
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+
+  border-radius: 20px;
+  padding: 30px;
+
+  color: white;
+
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.title {
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.text {
+  margin: 10px 0;
+  opacity: 0.9;
+}
+
+.button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 20px;
+
+  border-radius: 10px;
+  border: none;
+
+  cursor: pointer;
+
+  background: #bfa76a;
+  color: #0f2a24;
+
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.button:hover {
+  opacity: 0.85;
+}
