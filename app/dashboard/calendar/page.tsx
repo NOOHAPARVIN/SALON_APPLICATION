@@ -475,13 +475,14 @@ export default function DashboardCalendarPage() {
           padding: 4px 8px !important;
         }
         .fc-timegrid-now-indicator-line {
-          border-color: #d4af37 !important;
+          border-color: #ef4444 !important;
           border-width: 2px !important;
+          z-index: 30 !important;
         }
         .fc-timegrid-now-indicator-arrow {
-          border-color: #d4af37 !important;
-          border-top-color: transparent !important;
-          border-bottom-color: transparent !important;
+          border-color: #ef4444 !important;
+          border-width: 6px !important;
+          z-index: 30 !important;
         }
         .fc-header-toolbar {
           padding: 15px 20px !important;
@@ -616,7 +617,7 @@ export default function DashboardCalendarPage() {
               selectable={true}
               editable={true}
               height="80vh"
-              nowIndicator={false}
+              nowIndicator={true}
               allDaySlot={false}
               slotMinTime="09:00:00"
               slotMaxTime="33:00:00"

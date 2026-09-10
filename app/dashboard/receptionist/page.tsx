@@ -481,10 +481,10 @@ export default function OwnerCalendarPage() {
                   .fc .fc-event { border-radius: 6px !important; border-width: 2px !important; cursor: pointer; box-shadow: none !important; transition: box-shadow 0.15s ease; }
                   .fc .fc-event:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important; }
                   .fc .fc-event-main { padding: 3px 6px !important; font-size: 11px !important; font-weight: 600 !important; }
-                  .fc .fc-timegrid-now-indicator-line { border-color: #10b981 !important; border-width: 2px !important; }
-                  .fc .fc-timegrid-now-indicator-arrow { border-color: #10b981 !important; }
-                  .fc .fc-button-primary { background-color: #10b981 !important; border-color: #10b981 !important; color: white !important; border-radius: 8px !important; font-size: 12px !important; padding: 6px 12px !important; }
-                  .fc .fc-button-primary:hover { background-color: #059669 !important; border-color: #059669 !important; }
+                  .fc .fc-timegrid-now-indicator-line { border-color: #ef4444 !important; border-width: 2px !important; z-index: 30 !important; }
+                  .fc .fc-timegrid-now-indicator-arrow { border-color: #ef4444 !important; border-width: 6px !important; z-index: 30 !important; }
+                  .fc .fc-button-primary { background-color: #5c54b6 !important; border-color: #5c54b6 !important; color: white !important; border-radius: 8px !important; font-size: 12px !important; padding: 6px 12px !important; }
+                  .fc .fc-button-primary:hover { background-color: #4a439b !important; border-color: #4a439b !important; }
                   .fc .fc-toolbar-title { font-size: 0 !important; }
                   .fc .fc-toolbar-title::after { content: attr(data-custom-title); font-size: 16px !important; font-weight: 700 !important; color: #1e293b !important; }
                   .fc .fc-header-toolbar { padding: 4px 16px !important; border-bottom: 1px solid #f1f5f9 !important; }
@@ -502,7 +502,7 @@ export default function OwnerCalendarPage() {
                   editable={true}
                   eventResizableFromStart={true}
                   height="100%"
-                  nowIndicator={false}
+                  nowIndicator={true}
                   allDaySlot={false}
                   slotMinTime="09:00:00"
                   slotMaxTime="33:00:00"
