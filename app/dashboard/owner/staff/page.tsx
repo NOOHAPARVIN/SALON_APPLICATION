@@ -463,37 +463,38 @@ export default function StaffPage() {
                     {/* Duty Time Slot Card Highlight */}
                     <div 
                       onClick={() => handleOpenDutyModal(member)}
-                      className={`mb-3 p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all hover:scale-[1.01] ${
+                      className={`mb-3.5 p-3 rounded-2xl border flex items-center justify-between cursor-pointer transition-all hover:shadow-sm ${
                         isYellowColor 
-                          ? "bg-amber-50/70 border-amber-200/80 hover:border-amber-300" 
-                          : "bg-emerald-50/70 border-emerald-200/80 hover:border-emerald-300"
+                          ? "bg-[#fefce8] border-[#fef08a] hover:border-[#fde047]" 
+                          : "bg-[#ecfdf5] border-[#a7f3d0] hover:border-[#6ee7b7]"
                       }`}
                       title="Click to assign or change duty time"
                     >
-                      <div className="flex items-center gap-2">
-                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
-                          isYellowColor ? "bg-amber-500 text-white" : "bg-emerald-500 text-white"
+                      <div className="flex items-center gap-2.5">
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                          isYellowColor ? "bg-amber-500 text-white" : "bg-[#059669] text-white"
                         }`}>
-                          <FaClock className="text-xs" />
+                          <FaClock className="text-sm" />
                         </div>
                         <div>
                           <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Duty Time</span>
-                            <span className={`w-2 h-2 rounded-full ${isYellowColor ? "bg-amber-500" : "bg-emerald-500"}`} />
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-700">DUTY TIME</span>
+                            <span className={`w-2 h-2 rounded-full ${isYellowColor ? "bg-amber-500" : "bg-[#059669]"}`} />
                           </div>
-                          <p className="text-xs font-bold text-slate-800">
-                            {dutyStart} – {dutyEnd}
+                          <p className="text-xs font-extrabold text-slate-900 mt-0.5">
+                            {dutyStart.split(':').length === 2 ? `${dutyStart}:00` : dutyStart} – {dutyEnd.split(':').length === 2 ? `${dutyEnd}:00` : dutyEnd}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-1">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                        <span className={`text-xs font-bold px-3 py-1 rounded-xl border flex items-center gap-1.5 ${
                           isYellowColor 
-                            ? "bg-amber-100 text-amber-800 border-amber-300" 
-                            : "bg-emerald-100 text-emerald-800 border-emerald-300"
+                            ? "bg-[#fef08a] text-amber-900 border-amber-300" 
+                            : "bg-[#a7f3d0] text-emerald-950 border-emerald-300"
                         }`}>
-                          {isYellowColor ? "🟡 Yellow Shift" : "🟢 Light Green"}
+                          <span className={`w-2 h-2 rounded-full ${isYellowColor ? "bg-amber-600" : "bg-[#059669]"}`} />
+                          {isYellowColor ? "Yellow Shift" : "Light Green"}
                         </span>
                       </div>
                     </div>
@@ -513,7 +514,7 @@ export default function StaffPage() {
                     {member.services && Array.isArray(member.services) && member.services.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1">
                         {member.services.map((svc: string) => (
-                          <span key={svc} className="text-[9px] font-medium bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">
+                          <span key={svc} className="text-[10px] font-medium bg-slate-100/80 text-slate-600 px-2.5 py-1 rounded-lg border border-slate-200/60">
                             {svc}
                           </span>
                         ))}
@@ -521,18 +522,18 @@ export default function StaffPage() {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 pt-4 mt-4 border-t border-gray-50">
+                  <div className="flex items-center gap-2 pt-4 mt-4 border-t border-gray-100">
                     <Link
                       href={`/dashboard/owner/staff/${member.id}`}
-                      className="flex-1 text-center text-xs font-semibold text-[#ff6b35] bg-[#ff6b35]/10 hover:bg-[#ff6b35]/20 py-2.5 rounded-xl transition-colors"
+                      className="flex-1 text-center text-xs font-bold text-[#ff6b35] bg-[#ff6b35]/10 hover:bg-[#ff6b35]/20 py-2.5 rounded-xl transition-colors"
                     >
                       View Profile
                     </Link>
                     <button 
                       onClick={() => handleOpenDutyModal(member)}
-                      className="flex-1 text-center text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="flex-1 text-center text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                     >
-                      <FaClock className="text-[10px] text-slate-500" />
+                      <FaClock className="text-xs text-slate-600" />
                       Assign Duty Time
                     </button>
                   </div>
