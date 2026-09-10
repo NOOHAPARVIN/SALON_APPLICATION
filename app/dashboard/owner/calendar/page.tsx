@@ -786,8 +786,8 @@ export default function OwnerCalendarPage() {
 
             {/* Floating booking modal overlay */}
             {openModal && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                <div className="w-[650px] max-w-[95vw] h-[95vh] max-h-[95vh] flex flex-col shadow-2xl relative">
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+                <div className="w-[680px] max-w-[95vw] max-h-[90vh] flex flex-col shadow-2xl relative my-auto">
                   <BookingModal
                     open={openModal}
                     onClose={() => { setOpenModal(false); setIsEditMode(false); setSelectedEvent(null); setSelectedSlot(null); }}

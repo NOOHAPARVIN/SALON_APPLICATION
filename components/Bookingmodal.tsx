@@ -1768,8 +1768,8 @@ export default function BookingModal({
                     Full Name
                   </div>
                   <div className="space-y-2 relative">
-                    <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 w-full">
-                      <div className="flex-1 min-w-[130px]">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full">
+                      <div>
                         <input
                           type="text"
                           placeholder="First Name"
@@ -1779,11 +1779,11 @@ export default function BookingModal({
                             setSelectedFromCrm(false);
                             setFirstName(e.target.value);
                           }}
-                          className="w-full bg-white/80 border border-[#e6dccb] rounded-md px-3 py-1.5 text-[#3a4a35] placeholder-[#6b7f5e]/50 text-xs focus:outline-none focus:border-[#c29957] focus:bg-white transition-all font-medium shadow-sm"
+                          className="w-full bg-white/80 border border-[#e6dccb] rounded-md px-2.5 py-1.5 text-[#3a4a35] placeholder-[#6b7f5e]/50 text-xs focus:outline-none focus:border-[#c29957] focus:bg-white transition-all font-medium shadow-sm"
                         />
                         <span className="text-[9px] text-[#6b7f5e] mt-0.5 block">First Name</span>
                       </div>
-                      <div className="flex-1 min-w-[130px]">
+                      <div>
                         <input
                           type="text"
                           placeholder="Last Name"
@@ -1793,19 +1793,19 @@ export default function BookingModal({
                             setSelectedFromCrm(false);
                             setLastName(e.target.value);
                           }}
-                          className="w-full bg-white/80 border border-[#e6dccb] rounded-md px-3 py-1.5 text-[#3a4a35] placeholder-[#6b7f5e]/50 text-xs focus:outline-none focus:border-[#c29957] focus:bg-white transition-all font-medium shadow-sm"
+                          className="w-full bg-white/80 border border-[#e6dccb] rounded-md px-2.5 py-1.5 text-[#3a4a35] placeholder-[#6b7f5e]/50 text-xs focus:outline-none focus:border-[#c29957] focus:bg-white transition-all font-medium shadow-sm"
                         />
                         <span className="text-[9px] text-[#6b7f5e] mt-0.5 block">Last Name</span>
                       </div>
 
-                      <div className="flex-1 min-w-[130px]">
+                      <div>
                         <input
                           type="text"
                           dir="rtl"
-                          placeholder="الاسم بالعربية (Name Arabic)"
+                          placeholder="الاسم بالعربية"
                           value={nameArabic}
                           onChange={(e) => setNameArabic(e.target.value)}
-                          className="w-full bg-white/80 border border-[#e6dccb] rounded-md px-3 py-1.5 text-[#3a4a35] placeholder-[#6b7f5e]/50 text-xs focus:outline-none focus:border-[#c29957] focus:bg-white transition-all font-arabic font-medium shadow-sm"
+                          className="w-full bg-white/80 border border-[#e6dccb] rounded-md px-2.5 py-1.5 text-[#3a4a35] placeholder-[#6b7f5e]/50 text-xs focus:outline-none focus:border-[#c29957] focus:bg-white transition-all font-arabic font-medium shadow-sm"
                         />
                         <span className="text-[9px] text-[#6b7f5e] mt-0.5 block">Name (Arabic)</span>
                       </div>
