@@ -29,6 +29,7 @@ interface BranchContextType {
   currentCompanyId: string | null;
   setCurrentCompanyId: (id: string | null) => void;
   branchesForCurrentCompany: BranchEntity[];
+  refreshBranches: () => Promise<void>;
 }
 
 const BranchContext = createContext<BranchContextType | undefined>(undefined);
@@ -41,16 +42,30 @@ export function BranchProvider({ children }: { children: React.ReactNode }) {
   const [companies, setCompanies] = useState<CompanyEntity[]>([]);
   const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
 
-  // Filter branches based on selected company
-  const filteredBranches = currentCompanyId 
+  // Filter branches based on selected company and active status
+  const companyFilteredBranches = currentCompanyId 
     ? availableBranches.filter(b => String(b.company_id) === String(currentCompanyId))
     : availableBranches;
 
-  const branchesForCurrentCompany = filteredBranches.length > 0
-    ? filteredBranches
+  const activeBranches = companyFilteredBranches.filter(b => b.is_active !== false);
+
+  const branchesForCurrentCompany = activeBranches.length > 0
+    ? activeBranches
     : (String(currentCompanyId) === "2"
         ? [{ id: "elan-1", name: "Elan Gents Salon", slug: "elan", company_id: "2", is_active: true }]
         : [{ id: "rospa-1", name: "Rospa Salon - Mirqab", slug: "rospa", company_id: "1", is_active: true }]);
+
+  const refreshBranches = async () => {
+    try {
+      const branchesRes = await fetch('/api/branches?all=true');
+      const branchesData = await branchesRes.json();
+      if (branchesData.success && Array.isArray(branchesData.branches)) {
+        setAvailableBranches(branchesData.branches);
+      }
+    } catch (e) {
+      console.error("Failed to refresh branches", e);
+    }
+  };
 
   useEffect(() => {
     async function initBranch() {
@@ -198,7 +213,8 @@ export function BranchProvider({ children }: { children: React.ReactNode }) {
       companies,
       currentCompanyId,
       setCurrentCompanyId: updateCompany,
-      branchesForCurrentCompany
+      branchesForCurrentCompany,
+      refreshBranches
     }}>
       {children}
     </BranchContext.Provider>
