@@ -42,11 +42,14 @@ next-env.d.ts
 s a l o n - a p p . z i p  
  salon-app.zip
 
-# AI Agent files
+# AI Agent & IDE files
 .agents/
 AGENTS.md
+CLAUDE.md
 .gemini/
 .brain/
+.vscode/
+
 
 # Test reports & build outputs
 /playwright-report/
