@@ -47,3 +47,16 @@ s a l o n - a p p . z i p
 AGENTS.md
 .gemini/
 .brain/
+
+# Test reports & build outputs
+/playwright-report/
+/test-results/
+build_output.log
+
+# Temporary scratch scripts
+scratch_*.ts
+test_*.ts
+set_roles.ts
+load_env.ts
+process_rembg.py
+
