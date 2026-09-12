@@ -391,8 +391,17 @@ export default function OwnerCalendarPage() {
       return;
     }
 
-    const formatDate = (d: Date) => d.toISOString().split("T")[0];
-    const formatTime = (d: Date) => d.toTimeString().split(" ")[0];
+    const formatDate = (d: Date) => {
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    };
+    const formatTime = (d: Date) => {
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mm = String(d.getMinutes()).padStart(2, "0");
+      return `${hh}:${mm}:00`;
+    };
     try {
       const payload: any = { 
         appointment_date: formatDate(start), 

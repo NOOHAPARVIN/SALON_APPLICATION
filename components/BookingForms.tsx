@@ -244,6 +244,45 @@ export default function BookingForms({ branch: propBranch = 'rospa' }: { user?: 
     }
   }, [selectedCategory, selectedService, dbServices]);
 
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[] | null>(null);
+  const [loadingAvailability, setLoadingAvailability] = useState(false);
+
+  useEffect(() => {
+    const selectedStaff = form.services[0]?.staff || "";
+    const selectedService = form.services[0]?.service || "";
+    const selectedDate = form.date;
+
+    if (!selectedDate) {
+      setAvailableTimeSlots(null);
+      return;
+    }
+
+    const fetchAvailability = async () => {
+      setLoadingAvailability(true);
+      try {
+        const servObj = dbServices.find((s: any) => s.name === selectedService);
+        const duration = servObj?.duration_minutes || 30;
+
+        const res = await fetch(
+          `/api/bookings/availability?staff=${encodeURIComponent(selectedStaff)}&service=${encodeURIComponent(selectedService)}&date=${selectedDate}&duration=${duration}`
+        );
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setAvailableTimeSlots(data);
+          if (form.time && !data.includes(form.time)) {
+            setForm((prev) => ({ ...prev, time: "" }));
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch availability slots:", err);
+      } finally {
+        setLoadingAvailability(false);
+      }
+    };
+
+    fetchAvailability();
+  }, [form.date, form.services[0]?.staff, form.services[0]?.service, dbServices]);
+
   const addMinutes = (timeStr: string, minsToAdd: number) => {
     if (!timeStr) return "";
     const [h, m] = timeStr.split(":").map(Number);
@@ -266,20 +305,32 @@ export default function BookingForms({ branch: propBranch = 'rospa' }: { user?: 
 
     for (let h = 9; h <= 22; h++) {
       for (let m = 0; m < 60; m += 15) {
+        const hour = h.toString().padStart(2, "0");
+        const minute = m.toString().padStart(2, "0");
+        const timeVal = `${hour}:${minute}`;
+
         if (isToday) {
           // Skip past time slots for today
           if (h < currentHour || (h === currentHour && m <= currentMinute)) {
             continue;
           }
         }
-        const hour = h.toString().padStart(2, "0");
-        const minute = m.toString().padStart(2, "0");
-        slots.push({ value: `${hour}:${minute}`, label: `${hour}:${minute}` });
+
+        // If availability slots loaded for selected staff, filter out booked slots
+        if (availableTimeSlots !== null && !availableTimeSlots.includes(timeVal)) {
+          continue;
+        }
+
+        slots.push({ value: timeVal, label: timeVal });
       }
     }
 
-    if (isToday && slots.length === 0) {
-      slots.push({ value: "22:00", label: "Fully booked / Closed for today" });
+    if (slots.length === 0) {
+      if (isToday) {
+        slots.push({ value: "", label: "Fully booked / Closed for today" });
+      } else if (availableTimeSlots !== null) {
+        slots.push({ value: "", label: "No available times for selected stylist" });
+      }
     }
 
     return slots;
@@ -828,27 +879,7 @@ export default function BookingForms({ branch: propBranch = 'rospa' }: { user?: 
               required
             />
 
-            <select
-              className={styles.field}
-              name="time"
-              value={form.time}
-              onChange={(e) => {
-                handleChange(e);
-                if (form.services.length > 0) {
-                  handleServiceTime(0, e.target.value);
-                }
-              }}
-              required
-            >
-              <option value="">Select Time</option>
-              {timeSlots.map((slot) => (
-                <option key={slot.value} value={slot.value}>
-                  {slot.label}
-                </option>
-              ))}
-            </select>
-
-            <h3>Services</h3>
+            <h3>Services & Stylists</h3>
 
             {form.services.map((item: any, index) => {
               const categoryServices = getCategoryServices(item.category);
@@ -856,21 +887,6 @@ export default function BookingForms({ branch: propBranch = 'rospa' }: { user?: 
 
               return (
                 <div key={index} className={styles.serviceRow}>
-                  {index > 0 && (
-                    <select
-                      className={styles.field}
-                      value={item.start_time || ""}
-                      onChange={(e) => handleServiceTime(index, e.target.value)}
-                    >
-                      <option value="">Time</option>
-                      {timeSlots.map((slot) => (
-                        <option key={slot.value} value={slot.value}>
-                          {slot.label}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-
                   <select
                     className={styles.field}
                     value={item.category}
@@ -944,6 +960,43 @@ export default function BookingForms({ branch: propBranch = 'rospa' }: { user?: 
             <button type="button" className={styles.addBtn} onClick={addService}>
               + Add More
             </button>
+
+            {/* Time selection field UNDER services and category & stylist field */}
+            <div className="flex flex-col gap-1.5 mt-1">
+              <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+                <span>Select Available Time</span>
+                {loadingAvailability && (
+                  <span className="text-amber-600 font-normal normal-case text-xs animate-pulse">
+                    Checking stylist schedule...
+                  </span>
+                )}
+              </label>
+              <select
+                className={styles.field}
+                name="time"
+                value={form.time}
+                onChange={(e) => {
+                  handleChange(e);
+                  if (form.services.length > 0) {
+                    handleServiceTime(0, e.target.value);
+                  }
+                }}
+                required
+              >
+                <option value="">
+                  {!form.date
+                    ? "Select Date First"
+                    : timeSlots.length === 0
+                    ? "No available time slots"
+                    : "Select Available Time"}
+                </option>
+                {timeSlots.map((slot) => (
+                  <option key={slot.value} value={slot.value} disabled={!slot.value}>
+                    {slot.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <h3>{form.services.some(s => s.category === "Hair Care" || s.category === "Hair") ? "Starting Total: " : "Total: "}QR {totalPrice}</h3>
 

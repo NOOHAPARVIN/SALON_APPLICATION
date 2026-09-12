@@ -1,6 +1,6 @@
 import { supabaseAdmin as supabase } from "@/lib/supabaseAdmin";
 import { sendWhatsAppMessage } from "@/lib/whatsapp";
-import { checkStaffAvailability, resolveAndVerifyStaff, addMinutes } from "@/lib/bookingValidation";
+import { checkStaffAvailability, resolveAndVerifyStaff, addMinutes, checkStaffQualification } from "@/lib/bookingValidation";
 import { getCompanyIdFromRequest } from "@/lib/companyAuth";
 import { NextResponse } from "next/server";
 import { createBookingSchema, updateBookingSchema, formatZodError } from "@/lib/validations";
@@ -420,12 +420,66 @@ export async function PATCH(req: Request) {
 
     if (fetchError) throw fetchError;
 
-    // Check for overlap if scheduling details are changing
+    // If staff_id or start_time is updated, resolve staff_name and sync services JSON array
+    let newStaffName: string | undefined;
+    if (body.staff_id !== undefined && body.staff_id !== null) {
+      const { data: staffMember } = await supabase
+        .from("staff")
+        .select("name")
+        .eq("id", Number(body.staff_id))
+        .maybeSingle();
+      if (staffMember?.name) {
+        newStaffName = staffMember.name;
+      }
+    }
+
+    if (existingBooking.services && (newStaffName || body.start_time || body.end_time)) {
+      try {
+        let servList = typeof existingBooking.services === "string" 
+          ? JSON.parse(existingBooking.services) 
+          : existingBooking.services;
+        
+        if (Array.isArray(servList) && servList.length > 0) {
+          servList = servList.map((s: any, idx: number) => {
+            if (idx === 0) {
+              return {
+                ...s,
+                ...(newStaffName ? { staff: newStaffName, staff_id: Number(body.staff_id) } : {}),
+                ...(body.start_time ? { start_time: body.start_time } : {}),
+                ...(body.end_time ? { end_time: body.end_time } : {}),
+              };
+            }
+            return s;
+          });
+          updateData.services = typeof existingBooking.services === "string" ? JSON.stringify(servList) : servList;
+        }
+      } catch (e) {
+        console.error("Error updating services JSON in PATCH:", e);
+      }
+    }
+
+    // Check for staff qualification (whether staff is assigned to perform the service)
     const checkStaff = updateData.staff_id !== undefined ? updateData.staff_id : existingBooking.staff_id;
     const checkDate = updateData.appointment_date !== undefined ? updateData.appointment_date : existingBooking.appointment_date;
     const checkStart = updateData.start_time !== undefined ? updateData.start_time : existingBooking.start_time;
     const checkEnd = updateData.end_time !== undefined ? updateData.end_time : existingBooking.end_time;
     const checkStatus = updateData.status !== undefined ? updateData.status : existingBooking.status;
+    const checkService = updateData.service_name !== undefined ? updateData.service_name : existingBooking.service_name;
+    const checkCategory = updateData.category !== undefined ? updateData.category : existingBooking.category;
+
+    if (!body.ignore_qualification && checkStaff && checkService) {
+      try {
+        const qualCheck = await checkStaffQualification(Number(checkStaff), checkService, checkCategory);
+        if (!qualCheck.qualified) {
+          return Response.json({
+            success: false,
+            error: qualCheck.reason || `${qualCheck.staffName} cannot perform this service.`,
+          }, { status: 400 });
+        }
+      } catch (err: any) {
+        console.error("Qualification check error:", err);
+      }
+    }
 
     if (!body.ignore_availability && checkStaff && checkDate && checkStart && checkEnd && ["confirmed", "pending", "arrived"].includes(checkStatus)) {
       try {

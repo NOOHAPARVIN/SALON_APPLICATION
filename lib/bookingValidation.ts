@@ -193,3 +193,132 @@ export async function resolveAndVerifyStaff(
     throw new Error("Staff is not available for this time");
   }
 }
+
+/**
+ * Verifies if a staff member is qualified / assigned to perform a specific service or category.
+ */
+export async function checkStaffQualification(
+  staffId: number,
+  serviceName?: string,
+  serviceCategory?: string
+): Promise<{ qualified: boolean; staffName: string; reason?: string }> {
+  if (!staffId || !serviceName) {
+    return { qualified: true, staffName: "Staff" };
+  }
+
+  const servLower = serviceName.trim().toLowerCase();
+  const catLower = (serviceCategory || "").trim().toLowerCase();
+
+  // Busy/Leave/Break entries don't require specific service qualification
+  if (
+    servLower === "busy" ||
+    servLower === "busy block" ||
+    servLower === "leave" ||
+    servLower === "break" ||
+    catLower === "busy" ||
+    catLower === "leave"
+  ) {
+    return { qualified: true, staffName: "Staff" };
+  }
+
+  const { data: staffMember, error } = await supabase
+    .from("staff")
+    .select("id, name, services")
+    .eq("id", staffId)
+    .maybeSingle();
+
+  if (error || !staffMember) {
+    return { qualified: true, staffName: "Staff" };
+  }
+
+  const staffName = staffMember.name || "Staff";
+  let staffServices: string[] = Array.isArray(staffMember.services)
+    ? staffMember.services
+    : typeof staffMember.services === "string"
+    ? JSON.parse(staffMember.services || "[]")
+    : [];
+
+  const defaultStaffServicesMap: Record<string, string[]> = {
+    "jocelyn": ["Haircut", "Coloring", "Protein", "Waxing", "Keratin Protein Treatment", "Hair Care", "Hair"],
+    "feriel": ["Manicure", "Nail Art", "Gel Polish", "Gel Polish Removal", "Classic Eyelash Extensions", "Volume Lash Extensions", "Gel extentions", "Nails & Spa", "Nails"],
+    "reham": ["Hair Spa", "Full Body Relaxing Massage", "Deep Tissue Massage", "Thai Massage", "Any Facial", "Hot Oil Massage", "Moroccan Bath", "Footspa", "Massage", "Spa"],
+    "ramsi": ["Any Facial", "Kanpeki Korean Facial", "Premium Hydra Facial", "Anti-aging Hydra Facial", "Full Body Waxing", "Half Leg Waxing", "Half Arms Waxing", "Full Face Wax", "Eyebrows Wax", "Forehead Wax", "Chin Wax", "Belly Wax", "Back Wax", "Chest Wax", "Hairspa", "Facials", "Facial"],
+    "zara": ["Manicure", "Pedicure", "Gel extentions", "Gel polish", "Pedicure and Manicure", "Gel polish Removal", "Nails & Spa", "Nails"],
+    "kopila": ["Hair Spa", "Hairspa", "Footspa"],
+    "rebecca": ["Haircut", "Coloring", "Hair Spa", "massage", "Protein", "Kanpeki Korean Facial", "Any Facial", "Hot Oil Massage", "Full Body Relaxing Massage", "Relaxing Foot Reflexology", "Waxing", "Hairspa", "Footspa", "Keratin Protein Treatment", "Hair Care", "Hair"],
+    "yashodha": ["Hair Spa", "Pedicure", "Classic Eyelash Extensions", "Volume Lash Extensions", "Relaxing Foot Reflexology", "Hairspa", "Footspa", "Manicure", "Pedicure and Manicure", "Nails & Spa", "Nails"],
+    "maggy": ["Full Body Relaxing Massage", "Deep Tissue Massage", "Thai Massage", "Hot Oil Massage", "Moroccan Bath", "Footspa", "Massage"],
+    "nancy": ["Full Body Relaxing Massage", "Deep Tissue Massage", "Thai Massage", "Hot Oil Massage", "Waxing", "Footspa", "Massage"],
+    "sajal": ["hair", "Hair Spa", "Hairspa", "Hair Care", "Hair"],
+    "brahim": ["Hair Care", "Hair", "Combo", "Any haircut", "Beard setting", "Kids haircut"],
+    "leopoldo": ["Massages", "Deep tissue massage", "Relaxing massage", "Thai massage", "Signature massage", "Foot massage", "Massage"]
+  };
+
+  if (staffServices.length === 0) {
+    const sNameKey = staffName.trim().toLowerCase();
+    staffServices = defaultStaffServicesMap[sNameKey] || [];
+  }
+
+  if (staffServices.length === 0) {
+    return { qualified: true, staffName };
+  }
+
+  let categoryToCheck = catLower;
+  if (!categoryToCheck) {
+    const { data: serviceData } = await supabase
+      .from("services")
+      .select("category")
+      .ilike("name", serviceName.trim())
+      .maybeSingle();
+    if (serviceData?.category) {
+      categoryToCheck = serviceData.category.trim().toLowerCase();
+    }
+  }
+
+  const isQualified = staffServices.some((serv: string) => {
+    if (typeof serv !== "string") return false;
+    const sLower = serv.trim().toLowerCase();
+
+    // 1. Exact service name match (e.g. "Haircut" === "Haircut")
+    if (servLower && sLower === servLower) return true;
+
+    // 2. Exact category name match (e.g. "Hair Care", "Nails & Spa", "Facials", "Massage")
+    if (categoryToCheck && sLower === categoryToCheck) return true;
+
+    // 3. Standardized category equivalence matching (strictly identical to Bookingmodal dropdown filter)
+    if (categoryToCheck === "hair care" || categoryToCheck === "hair") {
+      if (sLower === "hair care" || sLower === "hair") return true;
+    }
+    if (categoryToCheck === "nails & spa" || categoryToCheck === "nails") {
+      if (sLower === "nails & spa" || sLower === "nails") return true;
+    }
+    if (categoryToCheck === "facials" || categoryToCheck === "facial") {
+      if (sLower === "facials" || sLower === "facial") return true;
+    }
+    if (categoryToCheck === "massage") {
+      if (sLower === "massage" || sLower === "massages") return true;
+    }
+    if (categoryToCheck === "eye lashes" || categoryToCheck === "lashes") {
+      if (sLower === "eye lashes" || sLower === "lashes") return true;
+    }
+    if (categoryToCheck === "waxing" || categoryToCheck === "wax") {
+      if (sLower === "waxing" || sLower === "wax") return true;
+    }
+    if (categoryToCheck === "moroccan bath" || categoryToCheck === "bath") {
+      if (sLower === "moroccan bath" || sLower === "bath") return true;
+    }
+
+    return false;
+  });
+
+  if (!isQualified) {
+    return {
+      qualified: false,
+      staffName,
+      reason: `${staffName} is not assigned to perform "${serviceName}". Please assign this service to a qualified stylist from the dropdown list.`,
+    };
+  }
+
+  return { qualified: true, staffName };
+}
+
